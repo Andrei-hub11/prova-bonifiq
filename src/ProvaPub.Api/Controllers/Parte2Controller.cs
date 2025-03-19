@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProvaPub.Contracts.Interfaces;
 using ProvaPub.Models;
 using ProvaPub.Repository;
 using ProvaPub.Services;
 
 namespace ProvaPub.Controllers
 {
-	
+
 	[ApiController]
 	[Route("[controller]")]
-	public class Parte2Controller :  ControllerBase
+	public class Parte2Controller : ControllerBase
 	{
 		/// <summary>
 		/// Precisamos fazer algumas alterações:
@@ -18,24 +19,26 @@ namespace ProvaPub.Controllers
 		/// Como você faria pra criar uma estrutura melhor, com menos repetição de código? E quanto ao CustomerService/ProductService. Você acha que seria possível evitar a repetição de código?
 		/// 
 		/// </summary>
-		TestDbContext _ctx;
-		public Parte2Controller(TestDbContext ctx)
+		private readonly TestDbContext _ctx;
+		private readonly ICustomerService _customerService;
+		private readonly IProductService _productService;
+		public Parte2Controller(TestDbContext ctx, ICustomerService customerService, IProductService productService)
 		{
 			_ctx = ctx;
-		}
-	
-		[HttpGet("products")]
-		public ProductList ListProducts(int page)
-		{
-			var productService = new ProductService(_ctx);
-			return productService.ListProducts(page);
+			_customerService = customerService;
+			_productService = productService;
 		}
 
-		[HttpGet("customers")]
-		public CustomerList ListCustomers(int page)
+		[HttpGet("products")]
+		public async Task<PaginatedResult<Product>> ListProducts(int page)
 		{
-			var customerService = new CustomerService(_ctx);
-			return customerService.ListCustomers(page);
+			return await _productService.ListProducts(page);
 		}
+
+		/* [HttpGet("customers")]
+		public async Task<CustomerList> ListCustomers(int page)
+		{
+			return await _customerService.ListCustomers(page);
+		} */
 	}
 }
